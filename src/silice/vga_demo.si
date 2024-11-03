@@ -26,8 +26,8 @@ unit vga_demo(
 
   uint16 frame(113); // frame counter
   uint1  prev_vs(0);
-$$for i=0,3 do
-  int12  rand_$i$(0);
+$$for i=0,2 do
+  uint12  rand_$i$(0);
 $$end
 
   always {
@@ -40,12 +40,14 @@ $$end
       uint10  y = vga.vga_y;
       uint2   s = 0;
 
-$$for i=0,3 do
+$$for i=0,2 do
     ->
-      rand_$i$ = (x == frame) ? 12d$1+i*103$ : (rand_$i$ * 12d$4091$ + 12d$5237-i*313$);
-      int2  speed  = rand_$i$[10,2];
+      rand_$i$ = (x[0,10] == frame[0,10])
+               ? 12d$1+i*103$
+               : (rand_$i$ * 12d$4091$ + 12d$3331+i*313$);
+      uint2  speed  = rand_$i$[10,2];
     ->
-      int10 dotpos = (frame >> speed) + rand_$i$;
+      uint10 dotpos = (frame[0,13] >> speed) + rand_$i$;
     ->
       uint2 l = (dotpos[0,8] == y[0,8])
               ? (speed != 2b00 ? ((~speed)+2b01) : 2b11)
@@ -62,6 +64,10 @@ $$end
     uint1 frame_tick  = (prev_vs & ~vga.vga_vs); // start of vsynch
     frame    = frame_tick ? (frame + 1) : frame;
     prev_vs  = vga.vga_vs;
+
+    if (frame_tick) {
+      __display("frame %d",frame);
+    }
 
   }
 
