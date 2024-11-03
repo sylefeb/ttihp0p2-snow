@@ -26,6 +26,8 @@ unit vga_demo(
 
   uint16 frame(0); // frame counter
   uint1  prev_vs(0);
+  uint1  prev_hs(0);
+  uint10 pix_x(0);
 $$N = 2
 $$for i=0,N-1 do
   uint16 modulo_$i$(0);
@@ -33,6 +35,9 @@ $$for i=0,N-1 do
 $$end
 
   always {
+
+    pix_x   = prev_hs & ~vga.vga_hs ? 0 : pix_x+1;
+    prev_hs = vga.vga_hs;
 
     // shading pipeline
     {
@@ -44,7 +49,7 @@ $$end
 
 $$for i=0,N-1 do
     ->
-      rand_$i$ = ((x+modulo_$i$) == (frame>>$i$))
+      rand_$i$ = ((pix_x+modulo_$i$) == (frame>>$i$))
                ? 12d$1+i*103$
                : (rand_$i$ * 12d$4091$ + 12d$3331+i*313$);
       uint2  speed  = rand_$i$[10,2];
@@ -67,7 +72,7 @@ $$end
     uint1 frame_tick = (prev_vs & ~vga.vga_vs); // start of vsynch
 $$for i=0,N-1 do
     modulo_$i$ = frame_tick
-               ? ((frame>>$i$)-modulo_$i$ == 639 ? (modulo_$i$ + 640) : modulo_$i$)
+               ? ((frame>>$i$)-modulo_$i$ == 800 ? (modulo_$i$ + 801) : modulo_$i$)
                : modulo_$i$;
 $$end
     frame    = frame_tick ? (frame + 1) : frame;
