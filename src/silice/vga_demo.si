@@ -24,13 +24,11 @@ unit vga_demo(
     vga_vs :> video_vs,
   );
 
-  int10 dotpos(0);
-  int2  speed(0);
-  int2  inv_speed(0);
-  int12 rand_x(0);
-
-  uint16 frame(0); // frame counter
+  uint16 frame(113); // frame counter
   uint1  prev_vs(0);
+$$for i=0,3 do
+  int12  rand_$i$(0);
+$$end
 
   always {
 
@@ -40,22 +38,23 @@ unit vga_demo(
 
       uint10  x = vga.vga_x;
       uint10  y = vga.vga_y;
+      uint2   s = 0;
 
+$$for i=0,3 do
     ->
-
-      rand_x = (x == 0) ? 12d1 : (rand_x * 12d31421 + 12d6927);
-      speed  = rand_x[10,2];
-
+      rand_$i$ = (x == frame) ? 12d$1+i*103$ : (rand_$i$ * 12d$4091$ + 12d$5237-i*313$);
+      int2  speed  = rand_$i$[10,2];
     ->
-
-      dotpos = (frame >> speed) + rand_x;
-
+      int10 dotpos = (frame >> speed) + rand_$i$;
     ->
-
-      uint2 s = (dotpos == y) ? 2b11 : 2b00;
+      uint2 l = (dotpos[0,8] == y[0,8])
+              ? (speed != 2b00 ? ((~speed)+2b01) : 2b11)
+              : 0;
+      s = s | l;
+$$end
       video_r = vga.active ? s : 2b0;
       video_g = vga.active ? s : 2b0;
-      video_b = 2b0;
+      video_b = vga.active ? s : 2b0;
 
     }
 
