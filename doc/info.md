@@ -7,26 +7,12 @@ You can also include images in this folder and reference them in the markdown. E
 512 kb in size, and the combined size of all images must be less than 1 MB.
 -->
 
-# Snow
+This demo is written in [Silice](https://github.com/sylefeb/Silice/), my HDL.
+Here is the [actual source](../src/silice/vga_demo.si). Silice now fully support TinyTapeout as a build target.
 
 ## How it works
 
 > *But does it work?*
-
-## How to test
-
-Plug the PMODs, select the design.
-
-### Preface
-
-This demo is written in [Silice](https://github.com/sylefeb/Silice/), my HDL.
-Here is the [actual source](../src/silice/vga_demo.si). Silice now fully support TinyTapeout as a build target.
-
-### Graphics
-
-
-### Audio
-
 
 ## How to test
 
