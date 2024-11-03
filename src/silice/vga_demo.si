@@ -8,8 +8,8 @@ $include('../common/vga.si')
 
 // -------------------------
 
-$$ W = 640
-$$ H = 480
+$$ W = 1024
+$$ H = 768
 
 unit vga_demo(
   output! uint2 video_r,
@@ -24,10 +24,12 @@ unit vga_demo(
     vga_vs :> video_vs,
   );
 
-  uint12 frame(0); // frame counter
+  uint16 frame(0); // frame counter
   uint1  prev_vs(0);
-$$for i=0,2 do
-  uint12  rand_$i$(0);
+$$N = 2
+$$for i=0,N-1 do
+  uint16 modulo_$i$(0);
+  uint16 rand_$i$(0);
 $$end
 
   always {
@@ -36,23 +38,24 @@ $$end
     {
       // pipeline start
 
-      uint10  x = vga.vga_x;
+      uint16  x = vga.vga_x;
       uint10  y = vga.vga_y;
       uint2   s = 0;
 
-$$for i=0,1 do
+$$for i=0,N-1 do
     ->
-      rand_$i$ = (x == (frame>>$i$))
+      rand_$i$ = ((x+modulo_$i$) == (frame>>$i$))
                ? 12d$1+i*103$
                : (rand_$i$ * 12d$4091$ + 12d$3331+i*313$);
       uint2  speed  = rand_$i$[10,2];
     //->
-      uint10 dotpos = (frame[0,10] >> speed) + rand_$i$;
+      uint16 dotpos = (frame >> speed) + rand_$i$;
     //->
       uint2 l = (dotpos[0,8] == y[0,8])
               ? (speed == 2b11 ? 2b01 : ~speed)
               : 0;
       s = s | l;
+      // s = l;
 $$end
       video_r = vga.active ? s : 2b0;
       video_g = vga.active ? s : 2b0;
@@ -61,7 +64,12 @@ $$end
     }
 
     // count frames
-    uint1 frame_tick  = (prev_vs & ~vga.vga_vs); // start of vsynch
+    uint1 frame_tick = (prev_vs & ~vga.vga_vs); // start of vsynch
+$$for i=0,N-1 do
+    modulo_$i$ = frame_tick
+               ? ((frame>>$i$)-modulo_$i$ == 639 ? (modulo_$i$ + 640) : modulo_$i$)
+               : modulo_$i$;
+$$end
     frame    = frame_tick ? (frame + 1) : frame;
     prev_vs  = vga.vga_vs;
 
