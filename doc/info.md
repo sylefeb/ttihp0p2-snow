@@ -12,7 +12,7 @@ Here is the [actual source](../src/silice/vga_demo.si). Silice now fully support
 
 ## How it works
 
-> *But does it work?*
+*But does it work?*
 
 ## How to test
 
