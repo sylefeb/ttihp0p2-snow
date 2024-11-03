@@ -24,22 +24,45 @@ unit vga_demo(
     vga_vs :> video_vs,
   );
 
+  int10 dotpos(0);
+  int2  speed(0);
+  int2  inv_speed(0);
+  int12 rand_x(0);
+
+  uint16 frame(0); // frame counter
+  uint1  prev_vs(0);
+
   always {
 
     // shading pipeline
     {
       // pipeline start
 
-      int11  x    = __signed(vga.vga_x) - $W>>1$;
-      int11  y    = __signed(vga.vga_y) - $H>>1$;
+      uint10  x = vga.vga_x;
+      uint10  y = vga.vga_y;
 
     ->
 
-      video_r = vga.active ? x[0,2] : 2b0;
-      video_g = vga.active ? y[0,2] : 2b0;
+      rand_x = (x == 0) ? 12d1 : (rand_x * 12d31421 + 12d6927);
+      speed  = rand_x[10,2];
+
+    ->
+
+      dotpos = (frame >> speed) + rand_x;
+
+    ->
+
+      uint2 s = (dotpos == y) ? 2b11 : 2b00;
+      video_r = vga.active ? s : 2b0;
+      video_g = vga.active ? s : 2b0;
       video_b = 2b0;
 
     }
+
+    // count frames
+    uint1 frame_tick  = (prev_vs & ~vga.vga_vs); // start of vsynch
+    frame    = frame_tick ? (frame + 1) : frame;
+    prev_vs  = vga.vga_vs;
 
   }
 
