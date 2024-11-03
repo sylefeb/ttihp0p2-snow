@@ -8,6 +8,9 @@ $include('../common/vga.si')
 
 // -------------------------
 
+$$ W = 640
+$$ H = 480
+
 unit vga_demo(
   output! uint2 video_r,
   output! uint2 video_g,
@@ -23,9 +26,20 @@ unit vga_demo(
 
   always {
 
-    video_r = vga.active ? vga.vga_x[0,2] : 2b0;
-    video_g = vga.active ? vga.vga_y[0,2] : 2b0;
-    video_b = 2b0;
+    // shading pipeline
+    {
+      // pipeline start
+
+      int11  x    = __signed(vga.vga_x) - $W>>1$;
+      int11  y    = __signed(vga.vga_y) - $H>>1$;
+
+    ->
+
+      video_r = vga.active ? x[0,2] : 2b0;
+      video_g = vga.active ? y[0,2] : 2b0;
+      video_b = 2b0;
+
+    }
 
   }
 
