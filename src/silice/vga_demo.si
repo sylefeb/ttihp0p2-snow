@@ -31,7 +31,7 @@ unit vga_demo(
 $$N = 2
 $$for i=0,N-1 do
   uint16 modulo_$i$(0);
-  uint16 rand_$i$(0);
+  uint12 rand_$i$(0);
 $$end
 
   always {
@@ -43,7 +43,7 @@ $$end
     {
       // pipeline start
 
-      uint16  x = vga.vga_x;
+      uint10  x = vga.vga_x;
       uint10  y = vga.vga_y;
       uint2   s = 0;
 
@@ -54,7 +54,7 @@ $$for i=0,N-1 do
                : (rand_$i$ * 12d$4091$ + 12d$3331+i*313$);
       uint2  speed  = rand_$i$[10,2];
     //->
-      uint16 dotpos = (frame >> speed) + rand_$i$;
+      uint10 dotpos = (frame >> speed) + rand_$i$;
     //->
       uint2 l = (dotpos[0,8] == y[0,8])
               ? (speed == 2b11 ? 2b01 : ~speed)

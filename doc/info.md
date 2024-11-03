@@ -13,6 +13,10 @@ You can also include images in this folder and reference them in the markdown. E
 
 > *But does it work?*
 
+## How to test
+
+Plug the PMODs, select the design.
+
 ### Preface
 
 This demo is written in [Silice](https://github.com/sylefeb/Silice/), my HDL.
